@@ -2,34 +2,22 @@ services:
   agents:
     build: ./agents
     container_name: ai-agents
-    ports:
-      - "${AGENTS_PORT:-4080}:4080"
+    network_mode: "host"
     volumes:
       - agent-data:/data/agents
+      - agent-config:/root/.config
+      - agent-opencode:/root/.opencode
       - /run/media/iboss/udata/dev/laravel/sites:/var/www
       - /run/media/iboss/udata/dev/php/bx24.loc:/var/www/bx24.loc/
       - /run/media/iboss/udata/dev/php/bxapps:/var/www/bxapps/
       - /run/media/iboss/udata/dev/php/line24:/var/www/line24/
-      - /run/media/iboss/udata/dev/ai/plans/mimo:/root/.local/share/mimocode/plans/
+      - /run/media/iboss/udata/dev/docker/:/var/www/docker
+      - ./AGENTS.md:/var/www/AGENTS.md
     environment:
-      - MIMO_API_KEY=${MIMO_API_KEY}
       - OPENCLAW_API_KEY=${OPENCLAW_API_KEY}
-    networks:
-      ai-network: {} # Используем объектный синтаксис
-      bx24_network:
-        aliases:
-          - b24.doc
+      - OPENCODE_API_KEY=${OPENCODE_API_KEY}
 
 volumes:
   agent-data:
-
-networks:
-  ai-network:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.28.0.0/16
-
-  bx24_network:
-    external: true
-    name: bx24_network
+  agent-config:
+  agent-opencode:

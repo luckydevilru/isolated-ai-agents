@@ -3,10 +3,15 @@ services:
     build: ./agents
     container_name: ai-agents
     network_mode: "host"
+    # Стартуем от root, чтобы entrypoint починил владельца root-заселённых
+    # $HOME-томов, затем сам переключается на node (uid 1000 = iboss на хосте).
+    # Так права на файлы хост-пользователя iboss не теряются.
+    user: "0:0"
     volumes:
       - agent-data:/data/agents
-      - agent-config:/root/.config
-      - agent-opencode:/root/.opencode
+      - agent-config:/home/node/.config
+      - agent-opencode:/home/node/.opencode
+      - agent-openchamber:/home/node/.openchamber
       - /run/media/iboss/udata/dev/laravel/sites:/var/www
       - /run/media/iboss/udata/dev/php/bx24.loc:/var/www/bx24.loc/
       - /run/media/iboss/udata/dev/php/bxapps:/var/www/bxapps/
@@ -16,8 +21,11 @@ services:
     environment:
       - OPENCLAW_API_KEY=${OPENCLAW_API_KEY}
       - OPENCODE_API_KEY=${OPENCODE_API_KEY}
+      - OPENCHAMBER_UI_PASSWORD=${OPENCHAMBER_UI_PASSWORD}
+      - HOME=/home/node
 
 volumes:
   agent-data:
   agent-config:
   agent-opencode:
+  agent-openchamber:

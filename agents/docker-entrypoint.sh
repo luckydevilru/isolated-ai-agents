@@ -21,6 +21,9 @@ chown -R "${USER_ID}:${USER_GROUP}" \
     /home/node/.local \
     2>/dev/null || true
 
+# Fix Playwright sandbox: chrome_sandbox needs root:root SUID to work
+find /home/node/.cache/ms-playwright -name "chrome_sandbox" -exec chown root:root {} \; -exec chmod 4755 {} \; 2>/dev/null || true
+
 export HOME=/home/node
 
 drop() {
@@ -32,6 +35,10 @@ if [ -n "${OPENCHAMBER_UI_PASSWORD}" ]; then
     setpriv --reuid="${USER_ID}" --regid="${USER_GROUP}" --init-groups \
         openchamber --ui-password "${OPENCHAMBER_UI_PASSWORD}" >/tmp/openchamber.log 2>&1 &
 fi
+
+# === Auto-start OpenCode server (fixed port 4096) ===
+setpriv --reuid="${USER_ID}" --regid="${USER_GROUP}" --init-groups \
+    opencode serve >/tmp/opencode-serve.log 2>&1 &
 
 # === Default: keep the container alive as the unprivileged user ===
 if [ "$#" -eq 0 ]; then

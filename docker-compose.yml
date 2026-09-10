@@ -7,11 +7,14 @@ services:
     # $HOME-томов, затем сам переключается на node (uid 1000 = iboss на хосте).
     # Так права на файлы хост-пользователя iboss не теряются.
     user: "0:0"
+    security_opt:
+      - seccomp:unconfined
     volumes:
       - agent-data:/data/agents
       - agent-config:/home/node/.config
       - agent-opencode:/home/node/.opencode
       - agent-openchamber:/home/node/.openchamber
+      - agent-playwright:/home/node/.cache/ms-playwright
       - /run/media/iboss/udata/dev/laravel/lotmonitor.loc:/var/www/lotmonitor.loc
       - /run/media/iboss/udata/dev/laravel/chatter.loc:/var/www/chatter.loc
       - /run/media/iboss/udata/dev/php/bx24.loc:/var/www/bx24.loc
@@ -30,3 +33,4 @@ volumes:
   agent-config:
   agent-opencode:
   agent-openchamber:
+  agent-playwright:

@@ -31,6 +31,9 @@ RUN npm install -g @openchamber/web
 # === Рабочие директории ===
 RUN mkdir -p /data/agents/logs /data/projects /workspace
 
+# === Playwright (браузеры для MCP) ===
+RUN npx -y playwright install --with-deps chromium
+
 # === Entrypoint: чинит права $HOME-томов и переключается на node (uid 1000) ===
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh

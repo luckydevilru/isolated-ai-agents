@@ -62,6 +62,29 @@ docker exec -it ai-agents openchamber update   # обновить
 
 Интерфейс слушает только `localhost` хоста (`network_mode: host`). Для доступа с других устройств добавьте `--lan` (только в доверенной сети).
 
+## Одноразовый фикс апгрейда (≤ 1.24.0)
+
+`@openchamber/web` 1.24.0 сломан в npm (зависит от отсутствующего `@openchamber/sdk@1.23.1`), поэтому сборка образа сейчас упадёт с `ETARGET` — пересобирайте только после выхода исправленной версии (в образе ставится `latest` без пина). У 1.23.x есть баг: кнопка «Update» в UI зависает с `ERR_TIMED_OUT`, если загрузка бинарника OpenCode подвисает.
+
+Исправляется ручным патчем `agents/patch-openchamber.js` — он добавляет таймаут 120с к апгрейд-запросу. Патч **сознательно не зашит в контейнер** (это одноразовый фикс) и применяется только к `@openchamber/web ≤ 1.24.0` — на версии выше он ничего не делает и не трогает файлы.
+
+Применить:
+```bash
+docker exec -it ai-agents node /var/www/docker/ai/agents/patch-openchamber.js
+```
+
+Проверить статус (1 = применён, 0 = нет):
+```bash
+docker exec -it ai-agents sh -c "grep -c 'openchamber-patch:' /usr/local/lib/node_modules/@openchamber/web/server/lib/opencode/routes.js"
+```
+
+Откатить из бэкапа `routes.js.bak`:
+```bash
+docker exec -it ai-agents sh -c "mv /usr/local/lib/node_modules/@openchamber/web/server/lib/opencode/routes.js.bak /usr/local/lib/node_modules/@openchamber/web/server/lib/opencode/routes.js"
+```
+
+> Файлы `/usr/local/lib/node_modules` — не volume: патч живёт в слое контейнера и сбрасывается при пересборке (`docker compose up -d --build`). После `openchamber update`, переустанавливающего `@openchamber/web`, патч тоже пропадает — если ещё нужен, примените снова.
+
 ## Команды
 
 ```bash
@@ -87,7 +110,7 @@ docker compose up -d --build  # Пересборка
 
 ## Права файлов
 
-Контейнер запускается от `user: "1000:1000"` (iboss на хосте). Все файлы, создаваемые в контейнере, автоматически получают владельца `iboss:iboss`.
+Контейнер стартует от `user: "0:0"`, но entrypoint переключает процессы на `node` (uid 1000 = `iboss` на хосте). Все файлы, создаваемые в контейнере, автоматически получают владельца `iboss:iboss`.
 
 Если после пересборки права на старых файлах `root:root`:
 ```bash

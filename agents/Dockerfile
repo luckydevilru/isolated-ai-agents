@@ -23,9 +23,18 @@ ENV PATH=$PATH:/usr/local/go/bin
 RUN curl -fsSL https://opencode.ai/install | HOME=/tmp bash \
     && mv /tmp/.opencode /usr/local/lib/opencode \
     && ln -s /usr/local/lib/opencode/bin/opencode /usr/local/bin/opencode \
+    && chown -R node:node /usr/local/lib/opencode \
+    && chmod -R u+rwX /usr/local/lib/opencode \
     && rm -rf /tmp/.opencode
 
 # === OpenChamber (Web UI for OpenCode) ===
+# Always install the latest published @openchamber/web.
+# CAUTION: @openchamber/web 1.24.0 is currently broken on npm (depends on the
+# absent @openchamber/sdk@1.23.1), so a rebuild would fail with ETARGET — only
+# rebuild once a fixed release is published.
+# The upgrade-timeout patch (../patch-openchamber.js) is a ONE-TIME MANUAL fix
+# for @openchamber/web <= 1.24.0 and is deliberately NOT applied here — see
+# README for the apply/status/revert commands.
 RUN npm install -g @openchamber/web
 
 # === Рабочие директории ===

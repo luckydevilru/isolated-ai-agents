@@ -21,6 +21,13 @@ chown -R "${USER_ID}:${USER_GROUP}" \
     /home/node/.local \
     2>/dev/null || true
 
+# Make the OpenCode binary replaceable at runtime: opencode self-upgrades by
+# overwriting its own binary, but this container runs opencode as "node"
+# (uid 1000) while the binary is installed under root-owned /usr/local/lib.
+chown -R "${USER_ID}:${USER_GROUP}" \
+    /usr/local/lib/opencode \
+    2>/dev/null || true
+
 # Fix Playwright sandbox: chrome_sandbox needs root:root SUID to work
 find /home/node/.cache/ms-playwright -name "chrome_sandbox" -exec chown root:root {} \; -exec chmod 4755 {} \; 2>/dev/null || true
 

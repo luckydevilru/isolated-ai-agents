@@ -2,7 +2,7 @@
 
 ## Environment
 - Isolated Docker container (Debian 12, root)
-- Pre-installed: Node 22, Python 3.11, PHP 8.2, Go, GCC
+- Pre-installed: Node 22, Python 3.11, PHP 8.4, Go, GCC
 - Working directory: /var/www/ (mounted from host)
 - Package managers: npm, yarn, composer, pip, go
 

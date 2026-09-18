@@ -27,7 +27,7 @@ Docker-окружение для запуска AI-агентов (OpenCode) с 
 |-----------|--------|
 | Node.js | 22 (Bookworm) |
 | Python | 3.11 |
-| PHP | 8.2 + Composer |
+| PHP | 8.4 + Composer (Sury) |
 | Go | 1.24.5 |
 | OpenCode | latest |
 | OpenChamber | latest |

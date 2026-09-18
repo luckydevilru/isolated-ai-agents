@@ -1,14 +1,23 @@
 FROM node:22-bookworm
 
 # === Системные утилиты ===
+# PHP 8.4 (из репозитория Sury), т.к. laravel/framework ^13 и совр. symfony
+# требуют >=8.4.1, а в Debian bookworm из коробки только PHP 8.2.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl wget git ca-certificates gnupg \
     jq ripgrep sqlite3 htop nano unzip \
     gcc g++ make \
-    php php-cli php-mbstring php-xml php-curl php-mysql \
-    composer \
     python3 python3-pip python3-venv \
     mariadb-client \
+    && install -d /usr/share/keyrings \
+    && curl -fsSL https://packages.sury.org/php/apt.gpg -o /usr/share/keyrings/sury-php.gpg \
+    && echo "deb [signed-by=/usr/share/keyrings/sury-php.gpg] https://packages.sury.org/php/ bookworm main" > /etc/apt/sources.list.d/php-sury.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        php8.4-cli php8.4-mbstring php8.4-xml php8.4-curl \
+        php8.4-mysql php8.4-zip php8.4-intl php8.4-gd php8.4-sqlite3 \
+    && update-alternatives --set php /usr/bin/php8.4 \
+    && curl -fsSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && rm -rf /var/lib/apt/lists/*
 
 # === Python пакеты ===
